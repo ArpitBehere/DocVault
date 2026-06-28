@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DocVault - Secure Document Management</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body class="home-page">
+<nav class="home-nav">
+    <a class="home-brand" th:href="@{/}">
+        <span class="home-brand-mark">DV</span>
+        <span>DocVault</span>
+    </a>
+    <div class="home-nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-to-use">How to use</a>
+        <a href="#contact">Contact</a>
+        <a class="home-nav-button" th:href="@{/dashboard}" sec:authorize="isAuthenticated()">Open dashboard</a>
+        <a class="home-nav-button" th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Sign in</a>
+    </div>
+</nav>
+
+<main>
+    <div th:if="${accountDeleted}" class="home-flash alert alert-success" th:text="${accountDeleted}"></div>
+
+    <section class="home-hero">
+        <div class="home-hero-copy">
+            <p class="home-kicker">Secure document vault</p>
+            <h1>DocVault keeps your important files organized, searchable, and ready when you need them.</h1>
+            <p class="home-hero-text">
+                Upload study material, personal documents, finance files, work records, medical papers,
+                legal documents, and more. DocVault stores them safely in your account with category filters,
+                tags, search, download, and delete controls.
+            </p>
+            <div class="home-actions">
+                <a class="btn btn-primary" th:href="@{/auth/register}" sec:authorize="!isAuthenticated()">Create account</a>
+                <a class="btn btn-primary" th:href="@{/dashboard}" sec:authorize="isAuthenticated()">Go to dashboard</a>
+                <a class="btn btn-light" th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Sign in</a>
+            </div>
+        </div>
+        <div class="home-preview" aria-label="DocVault dashboard preview">
+            <div class="preview-top">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="preview-stat-row">
+                <div><strong th:text="${totalFiles}">0</strong><small>Total files</small></div>
+                <div><strong th:text="${storageUsed}">0 B</strong><small>Storage used</small></div>
+                <div><strong th:text="${totalUsers}">0</strong><small>Total users</small></div>
+            </div>
+            <div class="preview-upload">Drop files here or click to upload</div>
+            <div class="preview-list">
+                <div><span>Study</span><strong>Java Notes.pdf</strong><small>PDF - 1.8 MB</small></div>
+                <div><span>Personal</span><strong>Aadhaar Copy.png</strong><small>Image - 920 KB</small></div>
+                <div><span>Finance</span><strong>Tax Return.pdf</strong><small>PDF - 740 KB</small></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section" id="features">
+        <div class="section-heading">
+            <p class="home-kicker">What it does</p>
+            <h2>A simple vault for everyday documents</h2>
+        </div>
+        <div class="feature-grid">
+            <article>
+                <h3>Category based storage</h3>
+                <p>Separate documents into General, Study, Personal details, Finance, Work, Medical, and Legal sections.</p>
+            </article>
+            <article>
+                <h3>Fast upload and download</h3>
+                <p>Add PDFs, images, Word files, Excel sheets, text files, and CSV files, then download them anytime.</p>
+            </article>
+            <article>
+                <h3>Search and filters</h3>
+                <p>Find files by name, description, tags, file type, or document category without digging through folders.</p>
+            </article>
+            <article>
+                <h3>Private user accounts</h3>
+                <p>Each user sees only their own files. Authentication keeps the dashboard and document APIs protected.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="home-section split-section" id="how-to-use">
+        <div>
+            <p class="home-kicker">How to use</p>
+            <h2>From upload to download in four steps</h2>
+            <ol class="step-list">
+                <li><strong>Create an account or sign in.</strong> Use your username and password to open your private dashboard.</li>
+                <li><strong>Upload your file.</strong> Drop files into the upload area or click the upload box.</li>
+                <li><strong>Add details.</strong> Choose a category, add an optional description, and add tags for better searching.</li>
+                <li><strong>Manage your vault.</strong> Search, filter, download, or delete documents whenever needed.</li>
+            </ol>
+        </div>
+        <div class="info-panel">
+            <h3>Best for storing</h3>
+            <ul>
+                <li>Study notes, assignments, certificates</li>
+                <li>Personal identity and address documents</li>
+                <li>Tax, bank, invoice, and finance files</li>
+                <li>Work documents and project records</li>
+                <li>Medical and legal paperwork</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="home-section contact-section" id="contact">
+        <div>
+            <p class="home-kicker">Created by</p>
+            <h2>Arpit Behere</h2>
+            <p>
+                DocVault is built as a clean Spring Boot document management app with MySQL storage,
+                Flyway migrations, secure login, file upload, category filtering, and dashboard controls.
+            </p>
+        </div>
+        <div class="contact-card">
+            <a href="mailto:workwitharpit.in@gmail.com"><span>Email</span><strong>workwitharpit.in@gmail.com</strong></a>
+            <a href="tel:+918799934626"><span>Mobile</span><strong>+91 8799934626</strong></a>
+            <a th:href="@{/dashboard}"><span>App</span><strong>Open DocVault dashboard</strong></a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

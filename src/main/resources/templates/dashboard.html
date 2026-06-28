@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DocVault — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="brand">
+        <span class="brand-icon">🗄️</span> DocVault
+    </div>
+    <div class="nav-right">
+        <span class="nav-user" sec:authentication="name"></span>
+        <form th:action="@{/auth/logout}" method="post" style="display:inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-ghost">Sign out</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div th:if="${deleteAccountError}" class="alert alert-danger" th:text="${deleteAccountError}"></div>
+
+    <!-- Stats row -->
+    <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-val" id="stat-docs">—</div><div class="stat-label">Total files</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-size">—</div><div class="stat-label">Storage used</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-types">—</div><div class="stat-label">File types</div></div>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="drop-zone">
+        <input type="file" id="file-input" multiple aria-label="Upload files"/>
+        <div class="upload-inner">
+            <div class="upload-icon">⬆️</div>
+            <div class="upload-title">Drop files here or click to upload</div>
+            <div class="upload-hint">PDF · Images · Word · Excel · CSV — max 50 MB each</div>
+        </div>
+        <div class="upload-progress" id="upload-progress" style="display:none">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-label" id="progress-label">Uploading…</div>
+        </div>
+    </div>
+
+    <!-- Tags/description modal -->
+    <div class="modal-overlay" id="meta-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal">
+            <h2 id="modal-title">File details (optional)</h2>
+            <label class="form-label">Category</label>
+            <select id="meta-category" class="form-input">
+                <option value="general">General</option>
+                <option value="study">Study</option>
+                <option value="personal">Personal details</option>
+                <option value="finance">Finance</option>
+                <option value="work">Work</option>
+                <option value="medical">Medical</option>
+                <option value="legal">Legal</option>
+            </select>
+            <label class="form-label">Description</label>
+            <input type="text" id="meta-description" class="form-input" placeholder="e.g. Q1 2024 tax return"/>
+            <label class="form-label" style="margin-top:1rem">Tags <span class="hint">(comma-separated)</span></label>
+            <input type="text" id="meta-tags" class="form-input" placeholder="e.g. tax,2024,personal"/>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="cancelUpload()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmUpload()">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="form-input search-input" placeholder="Search by name, tag, or description…" oninput="onSearch(this.value)"/>
+        </div>
+        <select id="category-filter" class="form-input category-filter" onchange="setCategoryFilter(this.value)" aria-label="Filter by document category">
+            <option value="all">All categories</option>
+            <option value="general">General</option>
+            <option value="study">Study</option>
+            <option value="personal">Personal details</option>
+            <option value="finance">Finance</option>
+            <option value="work">Work</option>
+            <option value="medical">Medical</option>
+            <option value="legal">Legal</option>
+        </select>
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+            <button class="filter-tab" onclick="setFilter('pdf',this)">PDF</button>
+            <button class="filter-tab" onclick="setFilter('image',this)">Images</button>
+            <button class="filter-tab" onclick="setFilter('document',this)">Docs</button>
+            <button class="filter-tab" onclick="setFilter('spreadsheet',this)">Sheets</button>
+        </div>
+    </div>
+
+    <!-- Document list -->
+    <div id="doc-list" class="doc-list"></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="empty-state" style="display:none">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">No documents yet</div>
+        <div class="empty-sub">Upload a file above to get started</div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination" style="display:none">
+        <button id="prev-btn" class="btn btn-ghost" onclick="changePage(-1)">← Previous</button>
+        <span id="page-info" class="page-info"></span>
+        <button id="next-btn" class="btn btn-ghost" onclick="changePage(1)">Next →</button>
+    </div>
+
+    <section class="danger-zone">
+        <div>
+            <h2>Delete account</h2>
+            <p>Delete your account and all documents stored in DocVault.</p>
+        </div>
+        <form th:action="@{/auth/delete-account}" method="post" class="delete-account-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="password" name="password" class="form-input" required autocomplete="current-password" placeholder="Current password"/>
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Delete your DocVault account permanently? This cannot be undone.');">
+                Delete account
+            </button>
+        </form>
+    </section>
+
+    <!-- Toast -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

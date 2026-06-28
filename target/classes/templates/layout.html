@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DocVault</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="brand" th:href="@{/dashboard}">
+        <span class="brand-icon">📁</span> DocVault
+    </a>
+    <div class="nav-right" sec:authorize="isAuthenticated()">
+        <span class="nav-user" sec:authentication="name"></span>
+        <form th:action="@{/auth/logout}" method="post" style="display:inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-ghost">Sign out</button>
+        </form>
+    </div>
+</nav>
+
+<main class="container">
+    <th:block th:insert="~{::content}"/>
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
